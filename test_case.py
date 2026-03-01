@@ -4,8 +4,9 @@ from unittest.mock import MagicMock
 
 class TestEshopExtended(unittest.TestCase):
     def setUp(self):
-        self.product = Product(name='Test', price=100.0, available_amount=10)
+        self.product = Product(name='Test', price=100.0, stock=10)
         self.cart = ShoppingCart()
+        self.mock_shipping_service = MagicMock()
 
     def test_mock_add_product(self):
         self.product.is_available = MagicMock(return_value=True)
@@ -49,13 +50,15 @@ class TestEshopExtended(unittest.TestCase):
 
     def test_order_reduces_stock(self):
         self.cart.add_product(self.product, 2)
-        order = Order(self.cart)
+        # Передаємо mock_shipping_service як другий аргумент
+        order = Order(self.cart, self.mock_shipping_service)
         order.place_order()
-        self.assertEqual(self.product.available_amount, 8)
+        self.assertEqual(self.product.stock, 8)
 
     def test_cart_clears_after_order(self):
         self.cart.add_product(self.product, 1)
-        Order(self.cart).place_order()
+        # Передаємо mock_shipping_service як другий аргумент
+        Order(self.cart, self.mock_shipping_service).place_order()
         self.assertEqual(len(self.cart.products), 0)
 
     def test_is_available_exact_amount(self):
