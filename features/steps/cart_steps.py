@@ -1,5 +1,6 @@
 from behave import given, when, then
 from eshop import Product, ShoppingCart, Order
+from unittest.mock import MagicMock
 
 @given("The product has availability of {availability}")
 def step_impl(context, availability):
@@ -20,7 +21,6 @@ def step_impl(context, amount):
 @when('I try to add {val} amount')
 def step_impl(context, val):
     try:
-        # Обробка тексту "None" або рядка "text"
         actual_val = None if val == "None" else val
         context.cart.add_product(context.product, actual_val)
         context.status = True
@@ -56,7 +56,9 @@ def step_impl(context, name, amount):
 
 @when("I place an order")
 def step_impl(context):
-    Order(context.cart).place_order()
+    mock_service = MagicMock()
+    order = Order(context.cart, mock_service)
+    order.place_order("Standard Shipping")
 
 @then('Product "{name}" should have availability {count}')
 def step_impl(context, name, count):
